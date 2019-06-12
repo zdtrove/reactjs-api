@@ -1,6 +1,8 @@
 import React from 'react';
 import callApi from './../../utils/apiCaller';
 import { Link } from 'react-router-dom';
+import * as actions from './../../actions/index';
+import { connect } from 'react-redux';
 
 class ProductActionPage extends React.Component {
 
@@ -18,14 +20,18 @@ class ProductActionPage extends React.Component {
         var { match } = this.props;
         if (match) {
             var id = match.params.id;
-            callApi(`products/${ id }`, 'GET', null).then(res => {
-                var data = res.data;
-                this.setState({
-                    id : data.id,
-                    txtName : data.name,
-                    txtPrice : data.price,
-                    chkbStatus : data.status
-                });
+            this.props.onEditProduct(id);
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps && nextProps.itemEditing) {
+            var { itemEditing } = nextProps;
+            this.setState({
+                id : itemEditing.id,
+                txtName : itemEditing.name,
+                txtPrice : itemEditing.price,
+                chkbStatus : itemEditing.status
             });
         }
     }
@@ -43,6 +49,12 @@ class ProductActionPage extends React.Component {
         e.preventDefault();
         var { id, txtName, txtPrice, chkbStatus } = this.state;
         var { history } = this.props;
+        var product = {
+            id : id,
+            name : txtName,
+            price : txtPrice,
+            status : chkbStatus
+        }
         if (id) {
             callApi(`products/${ id }`, 'PUT', {
                 name : txtName,
@@ -53,14 +65,8 @@ class ProductActionPage extends React.Component {
                 // history.push('/product-list');
             });
         } else {
-            callApi('products', 'POST', {
-                name : txtName,
-                price : txtPrice,
-                status : chkbStatus
-            }).then(res => {
-                history.goBack();
-                // history.push('/product-list');
-            });
+            this.props.onAddProduct(product);
+            history.goBack();
         }
     }
 
@@ -114,4 +120,21 @@ class ProductActionPage extends React.Component {
     }
 }
 
-export default ProductActionPage;
+const mapStateToProps = (state) => {
+    return {
+        itemEditing : state.itemEditing
+    }
+}
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        onAddProduct : (product) => {
+            dispatch(actions.actAddProductRequest(product));
+        },
+        onEditProduct : (id) => {
+            dispatch(actions.actGetProductRequest(id));
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductActionPage);
