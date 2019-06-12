@@ -14,6 +14,22 @@ class ProductActionPage extends React.Component {
         };
     }
 
+    componentDidMount() {
+        var { match } = this.props;
+        if (match) {
+            var id = match.params.id;
+            callApi(`products/${ id }`, 'GET', null).then(res => {
+                var data = res.data;
+                this.setState({
+                    id : data.id,
+                    txtName : data.name,
+                    txtPrice : data.price,
+                    chkbStatus : data.status
+                });
+            });
+        }
+    }
+
     onChange = (e) => {
         var target = e.target;
         var name = target.name;
@@ -25,16 +41,27 @@ class ProductActionPage extends React.Component {
 
     onSave = (e) => {
         e.preventDefault();
-        var { txtName, txtPrice, chkbStatus } = this.state;
+        var { id, txtName, txtPrice, chkbStatus } = this.state;
         var { history } = this.props;
-        callApi('products', 'POST', {
-            name : txtName,
-            price : txtPrice,
-            status : chkbStatus
-        }).then(res => {
-            // history.goBack();
-            history.push('/product-list');
-        });
+        if (id) {
+            callApi(`products/${ id }`, 'PUT', {
+                name : txtName,
+                price : txtPrice,
+                status : chkbStatus
+            }).then(res => {
+                history.goBack();
+                // history.push('/product-list');
+            });
+        } else {
+            callApi('products', 'POST', {
+                name : txtName,
+                price : txtPrice,
+                status : chkbStatus
+            }).then(res => {
+                history.goBack();
+                // history.push('/product-list');
+            });
+        }
     }
 
     render() {
@@ -72,6 +99,7 @@ class ProductActionPage extends React.Component {
                                 name="chkbStatus"
                                 value={ chkbStatus }
                                 onChange={ this.onChange }
+                                checked={ chkbStatus }
                             />
                             Còn Hàng
                         </label>
