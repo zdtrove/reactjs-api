@@ -1,5 +1,4 @@
 import React from 'react';
-import callApi from './../../utils/apiCaller';
 import { Link } from 'react-router-dom';
 import * as actions from './../../actions/index';
 import { connect } from 'react-redux';
@@ -56,18 +55,11 @@ class ProductActionPage extends React.Component {
             status : chkbStatus
         }
         if (id) {
-            callApi(`products/${ id }`, 'PUT', {
-                name : txtName,
-                price : txtPrice,
-                status : chkbStatus
-            }).then(res => {
-                history.goBack();
-                // history.push('/product-list');
-            });
+            this.props.onUpdateProduct(product);
         } else {
             this.props.onAddProduct(product);
-            history.goBack();
         }
+        history.goBack();
     }
 
     render() {
@@ -133,6 +125,9 @@ const mapDispatchToProps = (dispatch, props) => {
         },
         onEditProduct : (id) => {
             dispatch(actions.actGetProductRequest(id));
+        },
+        onUpdateProduct : (product) => {
+            dispatch(actions.actUpdateProductRequest(product));
         }
     }
 }

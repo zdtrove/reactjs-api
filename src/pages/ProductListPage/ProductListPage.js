@@ -13,6 +13,7 @@ class ProductListPage extends React.Component {
 
     onDelete = (id) => {
         this.props.onDeleteProduct(id);
+        
     }
 
     render() {
