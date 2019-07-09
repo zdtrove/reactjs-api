@@ -12,7 +12,7 @@ class App extends React.Component {
                     <Menu />
                     <div className="container">
                         <div className="row">
-                            { this.showContentMenus(routes) }
+                            { this.showContentMenus() }
                         </div>
                     </div>
                 </div>
